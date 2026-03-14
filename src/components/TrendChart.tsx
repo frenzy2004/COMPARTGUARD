@@ -16,7 +16,7 @@ const COLORS = {
 };
 
 const Y_MAX = 50;
-const PADDING = { top: 16, right: 12, bottom: 32, left: 36 };
+const PADDING = { top: 12, right: 8, bottom: 28, left: 32 };
 
 export default function TrendChart({ history }: TrendChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -38,7 +38,6 @@ export default function TrendChart({ history }: TrendChartProps) {
     const plotW = w - PADDING.left - PADDING.right;
     const plotH = h - PADDING.top - PADDING.bottom;
 
-    // Clear
     ctx.clearRect(0, 0, w, h);
 
     // Grid lines
@@ -52,9 +51,9 @@ export default function TrendChart({ history }: TrendChartProps) {
       ctx.stroke();
 
       ctx.fillStyle = COLORS.text;
-      ctx.font = '10px "SF Mono", "JetBrains Mono", "Courier New", monospace';
+      ctx.font = '9px "SF Mono", "JetBrains Mono", "Courier New", monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(String(y), PADDING.left - 6, py + 3);
+      ctx.fillText(String(y), PADDING.left - 4, py + 3);
     }
 
     // Reference lines
@@ -69,20 +68,20 @@ export default function TrendChart({ history }: TrendChartProps) {
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = color;
-      ctx.font = '9px "SF Mono", monospace';
+      ctx.font = '8px "SF Mono", monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(label, w - PADDING.right, py - 4);
+      ctx.fillText(label, w - PADDING.right, py - 3);
     };
     drawRefLine(20, COLORS.warning, 'WARNING');
     drawRefLine(30, COLORS.danger, 'DANGER');
 
     // X axis labels
     ctx.fillStyle = COLORS.text;
-    ctx.font = '10px "SF Mono", monospace';
+    ctx.font = '9px "SF Mono", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('-60s', PADDING.left, h - 8);
+    ctx.fillText('-60s', PADDING.left, h - 6);
     ctx.textAlign = 'right';
-    ctx.fillText('NOW', w - PADDING.right, h - 8);
+    ctx.fillText('NOW', w - PADDING.right, h - 6);
 
     // Draw series
     const drawLine = (
@@ -104,8 +103,6 @@ export default function TrendChart({ history }: TrendChartProps) {
       points.forEach(([x, y]) => ctx.lineTo(x, y));
       ctx.lineTo(points[points.length - 1][0], PADDING.top + plotH);
       ctx.closePath();
-      ctx.fillStyle = color.replace(')', `, ${fillOpacity})`).replace('rgb', 'rgba');
-      // Use hex to rgba
       const r = parseInt(color.slice(1, 3), 16);
       const g = parseInt(color.slice(3, 5), 16);
       const b = parseInt(color.slice(5, 7), 16);
@@ -118,8 +115,6 @@ export default function TrendChart({ history }: TrendChartProps) {
       ctx.lineWidth = 2;
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
-
-      // Smooth bezier
       ctx.moveTo(points[0][0], points[0][1]);
       for (let i = 1; i < points.length; i++) {
         const prev = points[i - 1];
@@ -130,28 +125,28 @@ export default function TrendChart({ history }: TrendChartProps) {
       ctx.stroke();
     };
 
-    drawLine(d => d.p, COLORS.pressure, 0.06);
-    drawLine(d => d.c, COLORS.capacitance, 0.05);
-    drawLine(d => d.t * 10, COLORS.temperature, 0.05); // scale temp for visibility
+    drawLine(d => d.p, COLORS.pressure, 0.05);
+    drawLine(d => d.c, COLORS.capacitance, 0.04);
+    drawLine(d => d.t * 10, COLORS.temperature, 0.04);
   }, [history]);
 
   return (
-    <div className="border border-border rounded bg-card p-3">
-      <p className="label-text mb-2">TREND — LAST 60 SECONDS</p>
+    <div className="bg-card/50 border-t border-border p-2">
+      <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1">TREND — LAST 60 SECONDS</p>
       <canvas
         ref={canvasRef}
         className="w-full"
-        style={{ height: 200 }}
+        style={{ height: 180 }}
       />
-      <div className="flex items-center gap-4 mt-2">
+      <div className="flex items-center gap-4 mt-1">
         {[
           { label: 'Pressure', color: 'bg-cg-pressure' },
           { label: 'Capacitance', color: 'bg-cg-capacitance' },
           { label: 'Temp (×10)', color: 'bg-cg-temperature' },
         ].map(item => (
-          <div key={item.label} className="flex items-center gap-1.5">
+          <div key={item.label} className="flex items-center gap-1">
             <span className={`block w-3 h-[2px] ${item.color}`} />
-            <span className="text-[10px] font-mono-data text-muted-foreground">{item.label}</span>
+            <span className="text-[9px] font-mono-data text-muted-foreground">{item.label}</span>
           </div>
         ))}
       </div>
