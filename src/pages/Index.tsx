@@ -23,7 +23,8 @@ const Index = () => {
   const distalTemp = proximalTemp - t;
 
   return (
-    <div className={`min-h-screen bg-background text-foreground p-2 max-w-md mx-auto ${isCritical ? 'border-2 border-cg-critical' : ''}`}>
+    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen text-foreground p-2 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] max-w-md mx-auto ${isCritical ? 'border-x-2 border-cg-critical' : ''}`}>
       {/* Header */}
       <header className="flex items-center justify-between mb-1">
         <h1 className="text-[11px] font-bold tracking-[3px] text-foreground">COMPARTGUARD</h1>
