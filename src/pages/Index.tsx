@@ -128,10 +128,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="text-center py-1">
-        <p className="text-[10px] text-muted-foreground tracking-wider">MIT GrandHack 2026 · v1.0</p>
-      </footer>
     </div>
     </div>
   );
