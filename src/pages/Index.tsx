@@ -115,7 +115,7 @@ const Index = () => {
             { name: 'Capacitive Touch', status: 'ACTIVE', ok: true },
             { name: 'DS18B20 Proximal', status: `${proximalTemp.toFixed(1)}°C`, ok: true },
             { name: 'DS18B20 Distal', status: `${distalTemp.toFixed(1)}°C`, ok: true },
-            { name: 'Buzzer', status: isWarning || isCritical ? 'BEEPING' : 'ARMED', ok: true },
+            
           ].map(sensor => (
             <div key={sensor.name} className="flex items-center justify-between text-[11px]">
               <div className="flex items-center gap-1.5">
