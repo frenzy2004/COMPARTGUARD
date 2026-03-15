@@ -22,13 +22,10 @@ const Index = () => {
   const proximalTemp = 32.1 + t * 0.3;
   const distalTemp = proximalTemp - t;
 
-  const cardBorder = isCritical ? 'border border-cg-critical' : 'border border-transparent';
-  const cardBg = 'bg-card/50';
-
   return (
-    <div className="min-h-screen bg-background text-foreground p-2 max-w-md mx-auto">
+    <div className={`min-h-screen bg-background text-foreground p-2 max-w-md mx-auto ${isCritical ? 'border-2 border-cg-critical' : ''}`}>
       {/* Header */}
-      <header className="flex items-center justify-between mb-2">
+      <header className="flex items-center justify-between mb-1">
         <h1 className="text-[11px] font-bold tracking-[3px] text-foreground">COMPARTGUARD</h1>
         <div className="flex items-center gap-1.5">
           <span
@@ -42,7 +39,7 @@ const Index = () => {
 
       {/* Status Banner */}
       <div
-        className={`${style.bg} ${style.text} py-3 text-center mb-2 transition-colors duration-300 ${isCritical ? 'animate-pulse-critical' : ''}`}
+        className={`${style.bg} ${style.text} -mx-2 py-3 text-center mb-1 transition-colors duration-300 ${isCritical ? 'animate-pulse-critical' : ''}`}
       >
         <p className="text-3xl font-black tracking-[4px] font-mono-data">{s}</p>
         {isCritical && (
@@ -51,7 +48,7 @@ const Index = () => {
       </div>
 
       {/* Primary Metric */}
-      <div className={`${cardBorder} p-2 mb-2 ${cardBg}`}>
+      <div className="border-t border-border pt-2 mb-1">
         <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1">Intracast Pressure</p>
         <div className="flex items-baseline gap-1">
           <span
@@ -61,19 +58,17 @@ const Index = () => {
           </span>
           <span className="text-[10px] text-muted-foreground font-mono-data">mmHg</span>
         </div>
-        <div className="mt-2">
-          <div className="w-full h-[3px] bg-muted overflow-hidden">
-            <div
-              className="h-full bg-cg-pressure transition-all duration-300"
-              style={{ width: `${pPercent}%` }}
-            />
-          </div>
+        <div className="w-full h-[3px] bg-muted overflow-hidden">
+          <div
+            className="h-full bg-cg-pressure transition-all duration-300"
+            style={{ width: `${pPercent}%` }}
+          />
         </div>
       </div>
 
       {/* Secondary Metrics */}
-      <div className="grid grid-cols-2 gap-2 mb-2">
-        <div className={`${cardBorder} p-2 ${cardBg}`}>
+      <div className="grid grid-cols-2 gap-2 border-t border-border pt-2 mb-1">
+        <div>
           <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1">Capacitance</p>
           <div className="flex items-baseline gap-1">
             <span className="text-[38px] leading-none font-semibold font-mono-data text-cg-capacitance">
@@ -81,16 +76,14 @@ const Index = () => {
             </span>
             <span className="text-[10px] text-muted-foreground font-mono-data">%</span>
           </div>
-          <div className="mt-2">
-            <div className="w-full h-[3px] bg-muted overflow-hidden">
-              <div
-                className="h-full bg-cg-capacitance transition-all duration-300"
-                style={{ width: `${cPercent}%` }}
-              />
-            </div>
+          <div className="w-full h-[3px] bg-muted overflow-hidden">
+            <div
+              className="h-full bg-cg-capacitance transition-all duration-300"
+              style={{ width: `${cPercent}%` }}
+            />
           </div>
         </div>
-        <div className={`${cardBorder} p-2 ${cardBg}`}>
+        <div>
           <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1">Temp Gradient</p>
           <div className="flex items-baseline gap-1">
             <span className="text-[38px] leading-none font-semibold font-mono-data text-cg-temperature">
@@ -98,26 +91,24 @@ const Index = () => {
             </span>
             <span className="text-[10px] text-muted-foreground font-mono-data">°C</span>
           </div>
-          <div className="mt-2">
-            <div className="w-full h-[3px] bg-muted overflow-hidden">
-              <div
-                className="h-full bg-cg-temperature transition-all duration-300"
-                style={{ width: `${tPercent}%` }}
-              />
-            </div>
+          <div className="w-full h-[3px] bg-muted overflow-hidden">
+            <div
+              className="h-full bg-cg-temperature transition-all duration-300"
+              style={{ width: `${tPercent}%` }}
+            />
           </div>
         </div>
       </div>
 
       {/* Trend Chart */}
-      <div className="mb-2">
+      <div className="mb-1">
         <TrendChart history={history} />
       </div>
 
       {/* Sensor Status */}
-      <div className={`${cardBg} p-2 mb-2 border-t border-border`}>
-        <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1.5">SENSOR STATUS</p>
-        <div className="space-y-1">
+      <div className="border-t border-border pt-2 mb-1">
+        <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1">SENSOR STATUS</p>
+        <div className="space-y-0.5">
           {[
             { name: 'BMP280 Pressure', status: 'ACTIVE', ok: true },
             { name: 'Capacitive Touch', status: 'ACTIVE', ok: true },
@@ -143,5 +134,4 @@ const Index = () => {
     </div>
   );
 };
-
 export default Index;

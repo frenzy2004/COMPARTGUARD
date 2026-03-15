@@ -131,7 +131,7 @@ export default function TrendChart({ history }: TrendChartProps) {
   }, [history]);
 
   return (
-    <div className="bg-card/50 border-t border-border p-2">
+    <div className="border-t border-border pt-2">
       <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1">TREND — LAST 60 SECONDS</p>
       <canvas
         ref={canvasRef}
