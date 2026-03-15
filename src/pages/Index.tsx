@@ -133,6 +133,7 @@ const Index = () => {
         <p className="text-[10px] text-muted-foreground tracking-wider">MIT GrandHack 2026 · v1.0</p>
       </footer>
     </div>
+    </div>
   );
 };
 export default Index;
