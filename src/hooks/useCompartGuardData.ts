@@ -14,10 +14,23 @@ export interface DataPoint extends SensorData {
 const MAX_POINTS = 120;
 
 export function useCompartGuardData() {
-  const [current, setCurrent] = useState<SensorData>({ p: 0, c: 0, t: 0, s: 'NORMAL' });
-  const [history, setHistory] = useState<DataPoint[]>([]);
+  const initP = 5;
+  const initC = initP * 0.4 + 1;
+  const initT = Math.random() * 0.2;
+  const initData: SensorData = { p: initP, c: initC, t: initT, s: 'NORMAL' };
+  const now = Date.now();
+  const initHistory: DataPoint[] = Array.from({ length: 10 }, (_, i) => ({
+    p: initP + (Math.random() - 0.5),
+    c: initC + (Math.random() - 0.5),
+    t: initT + Math.random() * 0.1,
+    s: 'NORMAL' as const,
+    ts: now - (10 - i) * 500,
+  }));
+
+  const [current, setCurrent] = useState<SensorData>(initData);
+  const [history, setHistory] = useState<DataPoint[]>(initHistory);
   const [connected, setConnected] = useState(false);
-  const mockPRef = useRef(0);
+  const mockPRef = useRef(initP);
 
   const pushData = useCallback((data: SensorData) => {
     setCurrent(data);
