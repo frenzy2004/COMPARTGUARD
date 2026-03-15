@@ -6,16 +6,16 @@ interface TrendChartProps {
 }
 
 const COLORS = {
-  pressure: '#3B82F6',
-  capacitance: '#8B5CF6',
-  temperature: '#F59E0B',
-  warning: '#F59E0B',
-  danger: '#EF4444',
-  grid: 'rgba(255,255,255,0.06)',
-  text: '#6B7280',
+  pressure: '#0D47A1',
+  capacitance: '#00695C',
+  temperature: '#E65100',
+  warning: '#E65100',
+  danger: '#D32F2F',
+  grid: 'rgba(0,0,0,0.06)',
+  text: '#5F6368',
 };
 
-const Y_MAX = 50;
+const Y_MAX = 80;
 const PADDING = { top: 12, right: 8, bottom: 28, left: 32 };
 
 export default function TrendChart({ history }: TrendChartProps) {
@@ -51,7 +51,7 @@ export default function TrendChart({ history }: TrendChartProps) {
       ctx.stroke();
 
       ctx.fillStyle = COLORS.text;
-      ctx.font = '9px "SF Mono", "JetBrains Mono", "Courier New", monospace';
+      ctx.font = 'bold 11px "SF Mono", "JetBrains Mono", "Courier New", monospace';
       ctx.textAlign = 'right';
       ctx.fillText(String(y), PADDING.left - 4, py + 3);
     }
@@ -68,30 +68,31 @@ export default function TrendChart({ history }: TrendChartProps) {
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = color;
-      ctx.font = '8px "SF Mono", monospace';
+      ctx.font = 'bold 10px "SF Mono", monospace';
       ctx.textAlign = 'right';
       ctx.fillText(label, w - PADDING.right, py - 3);
     };
-    drawRefLine(20, COLORS.warning, 'WARNING');
-    drawRefLine(30, COLORS.danger, 'DANGER');
+    drawRefLine(30, COLORS.warning, 'WARNING');
+    drawRefLine(50, COLORS.danger, 'DANGER');
 
     // X axis labels
     ctx.fillStyle = COLORS.text;
-    ctx.font = '9px "SF Mono", monospace';
+    ctx.font = 'bold 12px "SF Mono", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('-60s', PADDING.left, h - 6);
+    ctx.fillText('-30s', PADDING.left, h - 4);
     ctx.textAlign = 'right';
-    ctx.fillText('NOW', w - PADDING.right, h - 6);
+    ctx.fillText('NOW', w - PADDING.right, h - 4);
 
     // Draw series
     const drawLine = (
       getValue: (d: DataPoint) => number,
       color: string,
-      fillOpacity: number
+      fillOpacity: number,
+      lineWidth: number = 2
     ) => {
       if (history.length < 2) return;
       const points: [number, number][] = history.map((d, i) => {
-        const x = PADDING.left + (i / 119) * plotW;
+        const x = PADDING.left + (i / 59) * plotW;
         const v = Math.min(getValue(d), Y_MAX);
         const y = PADDING.top + plotH - (v / Y_MAX) * plotH;
         return [x, y];
@@ -112,7 +113,7 @@ export default function TrendChart({ history }: TrendChartProps) {
       // Line
       ctx.beginPath();
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = lineWidth;
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
       ctx.moveTo(points[0][0], points[0][1]);
@@ -125,28 +126,28 @@ export default function TrendChart({ history }: TrendChartProps) {
       ctx.stroke();
     };
 
-    drawLine(d => d.p, COLORS.pressure, 0.05);
-    drawLine(d => d.c, COLORS.capacitance, 0.04);
-    drawLine(d => d.t * 10, COLORS.temperature, 0.04);
+    drawLine(d => d.p, COLORS.pressure, 0.05, 2);
+    drawLine(d => d.c, COLORS.capacitance, 0.04, 2);
+    drawLine(d => d.t * 15, COLORS.temperature, 0.06, 3);
   }, [history]);
 
   return (
     <div className="border-t border-border pt-2">
-      <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground mb-1">TREND — LAST 60 SECONDS</p>
+      <p className="text-[14px] uppercase tracking-[2px] text-foreground font-bold mb-1">TREND — LAST 30 SECONDS</p>
       <canvas
         ref={canvasRef}
         className="w-full"
-        style={{ height: 180 }}
+        style={{ height: 150 }}
       />
-      <div className="flex items-center gap-4 mt-1">
+      <div className="flex items-center gap-6 mt-2">
         {[
           { label: 'Pressure', color: 'bg-cg-pressure' },
           { label: 'Capacitance', color: 'bg-cg-capacitance' },
-          { label: 'Temp (×10)', color: 'bg-cg-temperature' },
+          { label: 'Temp (×15)', color: 'bg-cg-temperature' },
         ].map(item => (
-          <div key={item.label} className="flex items-center gap-1">
-            <span className={`block w-3 h-[2px] ${item.color}`} />
-            <span className="text-[9px] font-mono-data text-muted-foreground">{item.label}</span>
+          <div key={item.label} className="flex items-center gap-2">
+            <span className={`block w-5 h-[3px] rounded ${item.color}`} />
+            <span className="text-[13px] font-mono-data text-foreground font-bold">{item.label}</span>
           </div>
         ))}
       </div>
