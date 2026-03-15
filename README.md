@@ -1,16 +1,16 @@
-# CompartGuard
+# Cast Hero
 
 > Real-time compartment syndrome monitoring dashboard for orthopedic casts — built for clinicians who need answers at a glance.
 
 <p align="center">
-  <img src="public/demo.gif" alt="CompartGuard dashboard cycling through NORMAL, WATCH, WARNING, and CRITICAL states" width="390" />
+  <img src="public/demo.gif" alt="Cast Hero dashboard cycling through NORMAL, WATCH, WARNING, and CRITICAL states" width="390" />
 </p>
 
 ---
 
 ## What Is This?
 
-Compartment syndrome is a serious surgical emergency where pressure builds up inside a muscle compartment, cutting off blood flow. **CompartGuard** is a web dashboard that pairs with an ESP32-based sensor array embedded in an orthopedic cast to track three key vitals in real time:
+Compartment syndrome is a serious surgical emergency where pressure builds up inside a muscle compartment, cutting off blood flow. **Cast Hero** is a web dashboard that pairs with an ESP32-based sensor array embedded in an orthopedic cast to track three key vitals in real time:
 
 | Metric | Sensor | What It Tells You |
 |---|---|---|
@@ -34,7 +34,7 @@ A **CRITICAL** alert means: seek immediate medical attention.
 - **4-tier status system** — color-coded status banner that escalates from green to red
 - **60-second trend chart** — canvas-rendered line chart showing pressure, capacitance, and temperature over time
 - **Sensor health panel** — at-a-glance view of all connected sensors and their current values
-- **Mobile-first design** — optimized for bedside phone/tablet use (dark theme, high contrast)
+- **Clinical white theme** — clean, high-contrast light UI designed for bedside readability on phones and tablets
 - **Mock mode** — runs with simulated sensor data when not connected to hardware, great for demos
 - **Hardware mode** — fetches live data from the ESP32 `/data` endpoint when accessed on the local network
 
@@ -108,9 +108,9 @@ The `useCompartGuardData` hook handles both modes:
 
 Status classification logic:
 - `NORMAL` — all readings within safe range
-- `WATCH` — capacitance > 10% (early swelling)
-- `WARNING` — pressure > 20 mmHg
-- `CRITICAL` — pressure > 30 mmHg AND temperature gradient > 2°C
+- `WATCH` — pressure > 15 mmHg or capacitance > 8%
+- `WARNING` — pressure > 30 mmHg
+- `CRITICAL` — pressure > 50 mmHg AND temperature gradient > 1.5°C
 
 ---
 
