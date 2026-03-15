@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>CompartGuard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0e1a;color:#f5f5f7;font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;
+padding:8px;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));
+-webkit-tap-highlight-color:transparent;overscroll-behavior:none;max-width:448px;margin:0 auto}
+.mono{font-family:'SF Mono','JetBrains Mono','Courier New',monospace}
+.lbl{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#6b7280;margin-bottom:4px}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.hdr h1{font-size:11px;font-weight:700;letter-spacing:3px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot-on{background:#22c55e;animation:pdot 2s ease-in-out infinite}
+.dot-off{background:#ef4444}
+.conn{display:flex;align-items:center;gap:6px}
+.conn span:last-child{font-size:10px;letter-spacing:2px;color:#6b7280}
+
+/* Status Banner */
+.banner{margin:0 -8px;padding:12px 0;text-align:center;margin-bottom:4px;transition:background .3s}
+.banner h2{font-size:30px;font-weight:900;letter-spacing:4px}
+.banner p{font-size:10px;letter-spacing:2px;opacity:.9;margin-top:4px}
+.s-NORMAL{background:hsl(142,50%,10%);color:#22c55e}
+.s-WATCH{background:hsl(38,50%,10%);color:#f59e0b}
+.s-WARNING{background:hsl(25,50%,10%);color:#f97316}
+.s-CRITICAL{background:hsl(0,50%,10%);color:#ef4444}
+
+/* Metrics */
+.sect{border-top:1px solid hsl(217,19%,17%);padding-top:8px;margin-bottom:4px}
+.val{display:flex;align-items:baseline;gap:4px}
+.val-lg{font-size:64px;line-height:1;font-weight:900}
+.val-md{font-size:38px;line-height:1;font-weight:600}
+.unit{font-size:10px;color:#6b7280}
+.bar{width:100%;height:3px;background:hsl(220,26%,14%);overflow:hidden}
+.bar-fill{height:100%;transition:width .3s}
+.c-p{color:#3b82f6}.bg-p{background:#3b82f6}
+.c-c{color:#8b5cf6}.bg-c{background:#8b5cf6}
+.c-t{color:#f59e0b}.bg-t{background:#f59e0b}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* Chart */
+canvas{width:100%;height:180px;display:block}
+.legend{display:flex;gap:16px;margin-top:4px}
+.legend div{display:flex;align-items:center;gap:4px;font-size:9px;color:#6b7280}
+.legend span{display:block;width:12px;height:2px}
+
+/* Sensors */
+.sensor{display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:1px 0}
+.sensor-left{display:flex;align-items:center;gap:6px}
+.sensor-dot{width:6px;height:6px;border-radius:50%;background:#22c55e}
+.sensor-name{color:#6b7280}
+
+footer{text-align:center;padding:4px 0;font-size:10px;color:#6b7280;letter-spacing:1px}
+
+.border-crit{border-left:2px solid #ef4444;border-right:2px solid #ef4444}
+
+@keyframes pcrit{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes pwarn{0%,100%{opacity:1}50%{opacity:.7}}
+@keyframes pdot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.7)}50%{opacity:.8;box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+.anim-crit{animation:pcrit .5s ease-in-out infinite}
+.anim-warn{animation:pwarn 1.5s ease-in-out infinite}
+</style>
+</head>
+<body id="body">
+
+<div class="hdr">
+<h1>COMPARTGUARD</h1>
+<div class="conn"><span class="dot dot-off" id="dot"></span><span class="mono" id="connTxt">OFFLINE</span></div>
+</div>
+
+<div class="banner s-NORMAL" id="banner">
+<h2 class="mono" id="statusTxt">NORMAL</h2>
+<p id="urgentTxt" style="display:none">SEEK IMMEDIATE MEDICAL ATTENTION</p>
+</div>
+
+<div class="sect">
+<p class="lbl">Intracast Pressure</p>
+<div class="val"><span class="mono val-lg c-p" id="pVal">0.0</span><span class="mono unit">mmHg</span></div>
+<div class="bar"><div class="bar-fill bg-p" id="pBar" style="width:0%"></div></div>
+</div>
+
+<div class="sect grid2">
+<div>
+<p class="lbl">Capacitance</p>
+<div class="val"><span class="mono val-md c-c" id="cVal">0.0</span><span class="mono unit">%</span></div>
+<div class="bar"><div class="bar-fill bg-c" id="cBar" style="width:0%"></div></div>
+</div>
+<div>
+<p class="lbl">Temp Gradient</p>
+<div class="val"><span class="mono val-md c-t" id="tVal">0.0</span><span class="mono unit">°C</span></div>
+<div class="bar"><div class="bar-fill bg-t" id="tBar" style="width:0%"></div></div>
+</div>
+</div>
+
+<div class="sect">
+<p class="lbl">TREND — LAST 60 SECONDS</p>
+<canvas id="chart"></canvas>
+<div class="legend">
+<div><span class="bg-p"></span><span class="mono">Pressure</span></div>
+<div><span class="bg-c"></span><span class="mono">Capacitance</span></div>
+<div><span class="bg-t"></span><span class="mono">Temp (×10)</span></div>
+</div>
+</div>
+
+<div class="sect" id="sensors">
+<p class="lbl">SENSOR STATUS</p>
+</div>
+
+<footer>MIT GrandHack 2026 · v1.0</footer>
+
+<script>
+var MAX=120,YMAX=50,history=[];
+var $=function(id){return document.getElementById(id)};
+var pVal=$('pVal'),cVal=$('cVal'),tVal=$('tVal');
+var pBar=$('pBar'),cBar=$('cBar'),tBar=$('tBar');
+var banner=$('banner'),statusTxt=$('statusTxt'),urgentTxt=$('urgentTxt');
+var dot=$('dot'),connTxt=$('connTxt'),body=$('body');
+var canvas=$('chart'),ctx=canvas.getContext('2d');
+var sensorsDiv=$('sensors');
+
+function sizeCanvas(){
+var dpr=window.devicePixelRatio||1;
+var r=canvas.getBoundingClientRect();
+canvas.width=r.width*dpr;canvas.height=r.height*dpr;
+ctx.scale(dpr,dpr);
+}
+sizeCanvas();
+window.addEventListener('resize',sizeCanvas);
+
+function updateDOM(d){
+var p=d.p,c=d.c,t=d.t,s=d.s;
+pVal.textContent=p.toFixed(1);
+cVal.textContent=c.toFixed(1);
+tVal.textContent=t.toFixed(1);
+pBar.style.width=Math.min(p/30*100,100)+'%';
+cBar.style.width=Math.min(c/30*100,100)+'%';
+tBar.style.width=Math.min(t/5*100,100)+'%';
+
+banner.className='banner s-'+s+(s==='CRITICAL'?' anim-crit':'');
+statusTxt.textContent=s;
+urgentTxt.style.display=s==='CRITICAL'?'block':'none';
+pVal.className='mono val-lg c-p'+(s==='WARNING'?' anim-warn':'');
+body.className=s==='CRITICAL'?'border-crit':'';
+
+var proxT=(32.1+t*0.3).toFixed(1);
+var distT=(32.1+t*0.3-t).toFixed(1);
+var isBeep=s==='WARNING'||s==='CRITICAL';
+var sensors=[
+['BMP280 Pressure','ACTIVE'],
+['Capacitive Touch','ACTIVE'],
+['DS18B20 Proximal',proxT+'°C'],
+['DS18B20 Distal',distT+'°C'],
+['Buzzer',isBeep?'BEEPING':'ARMED']
+];
+var html='<p class="lbl">SENSOR STATUS</p>';
+for(var i=0;i<sensors.length;i++){
+html+='<div class="sensor"><div class="sensor-left"><span class="sensor-dot"></span><span class="sensor-name">'+sensors[i][0]+'</span></div><span class="mono">'+sensors[i][1]+'</span></div>';
+}
+sensorsDiv.innerHTML=html;
+}
+
+function drawChart(){
+var r=canvas.getBoundingClientRect();
+var w=r.width,h=r.height;
+var P={t:12,r:8,b:28,l:32};
+var pw=w-P.l-P.r,ph=h-P.t-P.b;
+ctx.clearRect(0,0,w,h);
+
+// Grid
+ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+for(var y=0;y<=YMAX;y+=10){
+var py=P.t+ph-(y/YMAX)*ph;
+ctx.beginPath();ctx.moveTo(P.l,py);ctx.lineTo(w-P.r,py);ctx.stroke();
+ctx.fillStyle='#6b7280';ctx.font='9px "SF Mono","Courier New",monospace';ctx.textAlign='right';
+ctx.fillText(y,P.l-4,py+3);
+}
+
+// Ref lines
+function refLine(yv,col,lbl){
+var py=P.t+ph-(yv/YMAX)*ph;
+ctx.setLineDash([6,4]);ctx.strokeStyle=col;ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(P.l,py);ctx.lineTo(w-P.r,py);ctx.stroke();
+ctx.setLineDash([]);ctx.fillStyle=col;ctx.font='8px "SF Mono",monospace';ctx.textAlign='right';
+ctx.fillText(lbl,w-P.r,py-3);
+}
+refLine(20,'#f59e0b','WARNING');refLine(30,'#ef4444','DANGER');
+
+// X labels
+ctx.fillStyle='#6b7280';ctx.font='9px "SF Mono",monospace';
+ctx.textAlign='left';ctx.fillText('-60s',P.l,h-6);
+ctx.textAlign='right';ctx.fillText('NOW',w-P.r,h-6);
+
+// Series
+function drawLine(fn,col,op){
+if(history.length<2)return;
+var pts=[];
+for(var i=0;i<history.length;i++){
+var x=P.l+(i/119)*pw;
+var v=Math.min(fn(history[i]),YMAX);
+pts.push([x,P.t+ph-(v/YMAX)*ph]);
+}
+// Area
+ctx.beginPath();ctx.moveTo(pts[0][0],P.t+ph);
+for(var i=0;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+ctx.lineTo(pts[pts.length-1][0],P.t+ph);ctx.closePath();
+var m=col.match(/\w\w/g);
+ctx.fillStyle='rgba('+parseInt(m[0],16)+','+parseInt(m[1],16)+','+parseInt(m[2],16)+','+op+')';
+ctx.fill();
+// Line
+ctx.beginPath();ctx.strokeStyle=col;ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';
+ctx.moveTo(pts[0][0],pts[0][1]);
+for(var i=1;i<pts.length;i++){
+var cpx=(pts[i-1][0]+pts[i][0])/2;
+ctx.bezierCurveTo(cpx,pts[i-1][1],cpx,pts[i][1],pts[i][0],pts[i][1]);
+}
+ctx.stroke();
+}
+drawLine(function(d){return d.p},'#3b82f6',0.05);
+drawLine(function(d){return d.c},'#8b5cf6',0.04);
+drawLine(function(d){return d.t*10},'#f59e0b',0.04);
+}
+
+function fetchData(){
+fetch('/data').then(function(r){return r.json()}).then(function(d){
+dot.className='dot dot-on';connTxt.textContent='LIVE';
+history.push(d);
+if(history.length>MAX)history=history.slice(-MAX);
+updateDOM(d);drawChart();
+}).catch(function(){
+dot.className='dot dot-off';connTxt.textContent='OFFLINE';
+});
+}
+setInterval(fetchData,500);
+</script>
+</body>
+</html>
