@@ -33,7 +33,7 @@ const Index = () => {
             className={`block w-2 h-2 rounded-full ${connected ? 'bg-cg-normal animate-pulse-dot' : 'bg-destructive'}`}
           />
           <span className="text-[10px] font-mono-data text-muted-foreground tracking-wider">
-            {connected ? 'LIVE' : 'OFFLINE'}
+            {connected ? 'ONLINE' : 'OFFLINE'}
           </span>
         </div>
       </header>
