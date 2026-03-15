@@ -228,7 +228,7 @@ drawLine(function(d){return d.t*10},'#f59e0b',0.04);
 
 function fetchData(){
 fetch('/data').then(function(r){return r.json()}).then(function(d){
-dot.className='dot dot-on';connTxt.textContent='LIVE';
+dot.className='dot dot-on';connTxt.textContent='ONLINE';
 history.push(d);
 if(history.length>MAX)history=history.slice(-MAX);
 updateDOM(d);drawChart();
